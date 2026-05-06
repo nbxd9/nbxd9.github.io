@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stream Preview</title>
+
+  <title>Live Stream</title>
 
   <style>
     * {
@@ -16,46 +17,30 @@
       min-height: 100vh;
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at top, rgba(80, 120, 255, 0.2), transparent 35%),
-        linear-gradient(135deg, #080808, #151515 55%, #050505);
+        radial-gradient(circle at top, rgba(80, 120, 255, 0.22), transparent 35%),
+        linear-gradient(135deg, #070707, #151515 55%, #050505);
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 24px;
+      overflow-x: hidden;
     }
 
     .page {
       width: 100%;
       max-width: 980px;
       text-align: center;
-      animation: fadeIn 0.8s ease forwards;
+      animation: fadeInUp 0.8s ease forwards;
     }
 
     h1 {
       font-size: clamp(2rem, 6vw, 4rem);
-      margin-bottom: 12px;
+      margin-bottom: 28px;
       font-weight: 800;
       letter-spacing: -1px;
-      outline: none;
-    }
-
-    h1:focus {
-      text-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
-    }
-
-    .edit-link {
-      display: inline-block;
-      margin-bottom: 28px;
-      color: #8ab4ff;
-      font-size: 0.95rem;
-      text-decoration: none;
-      transition: color 0.25s ease, transform 0.25s ease;
-    }
-
-    .edit-link:hover {
-      color: #ffffff;
-      transform: translateY(-2px);
+      line-height: 1.1;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
     .stream-box {
@@ -85,7 +70,7 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 50% 50%, rgba(60, 120, 255, 0.2), transparent 38%);
+        radial-gradient(circle at 50% 50%, rgba(60, 120, 255, 0.22), transparent 38%);
       opacity: 0.8;
       animation: pulseGlow 3s ease-in-out infinite;
     }
@@ -104,6 +89,31 @@
       pointer-events: none;
     }
 
+    .live-badge {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(255, 0, 64, 0.88);
+      box-shadow: 0 8px 28px rgba(255, 0, 64, 0.32);
+      z-index: 2;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
     .play-button {
       position: absolute;
       top: 50%;
@@ -120,6 +130,7 @@
       justify-content: center;
       transition: transform 0.3s ease, background 0.3s ease;
       animation: floatButton 2.4s ease-in-out infinite;
+      z-index: 2;
     }
 
     .play-button::before {
@@ -145,12 +156,26 @@
       background: rgba(255, 255, 255, 0.12);
       color: rgba(255, 255, 255, 0.86);
       backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+
+    .quality-badge {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(8px);
+      z-index: 2;
     }
 
     .loading {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.78);
+      background: rgba(0, 0, 0, 0.82);
       display: none;
       align-items: center;
       justify-content: center;
@@ -161,6 +186,7 @@
 
     .loading.active {
       display: flex;
+      animation: fadeIn 0.2s ease forwards;
     }
 
     .spinner {
@@ -205,6 +231,19 @@
       box-shadow: 0 30px 100px rgba(0, 0, 0, 0.75);
       border: 1px solid rgba(255,255,255,0.12);
       animation: modalPop 0.35s ease forwards;
+    }
+
+    .modal-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4f7cff, #7f5cff);
+      box-shadow: 0 16px 42px rgba(79, 124, 255, 0.38);
+      font-size: 1.6rem;
     }
 
     .modal h2 {
@@ -260,6 +299,17 @@
       }
     }
 
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     @keyframes modalPop {
       from {
         opacity: 0;
@@ -295,9 +345,24 @@
       }
     }
 
+    @keyframes blink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.35;
+      }
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 16px;
+        align-items: flex-start;
+        padding-top: 56px;
+      }
+
+      h1 {
+        margin-bottom: 22px;
       }
 
       .stream-box {
@@ -315,10 +380,26 @@
         border-bottom-width: 13px;
       }
 
+      .live-badge {
+        top: 12px;
+        left: 12px;
+        font-size: 0.7rem;
+        padding: 7px 11px;
+      }
+
+      .stream-label,
+      .quality-badge {
+        bottom: 12px;
+        font-size: 0.72rem;
+        padding: 7px 10px;
+      }
+
       .stream-label {
         left: 12px;
-        bottom: 12px;
-        font-size: 0.75rem;
+      }
+
+      .quality-badge {
+        right: 12px;
       }
 
       .modal {
@@ -331,20 +412,25 @@
 
 <body>
   <main class="page">
-    <h1 id="pageTitle" contenteditable="false">Live Stream</h1>
-
-    <a href="#" class="edit-link" id="editTitleLink">
-      Edit title
-    </a>
+    <h1 id="pageTitle">Live Stream</h1>
 
     <section class="stream-box" id="streamBox">
       <div class="stream-glow"></div>
       <div class="stream-lines"></div>
 
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        LIVE
+      </div>
+
       <div class="play-button" aria-label="Play stream"></div>
 
       <div class="stream-label">
-        HD Stream Preview
+        Stream Preview
+      </div>
+
+      <div class="quality-badge">
+        HD
       </div>
 
       <div class="loading" id="loading">
@@ -356,7 +442,10 @@
 
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
+      <div class="modal-icon">▶</div>
+
       <h2>Create an account</h2>
+
       <p>
         You should create an account to start watching.
       </p>
@@ -377,49 +466,21 @@
   </div>
 
   <script>
-    const editTitleLink = document.getElementById("editTitleLink");
     const pageTitle = document.getElementById("pageTitle");
     const streamBox = document.getElementById("streamBox");
     const loading = document.getElementById("loading");
     const modalBackdrop = document.getElementById("modalBackdrop");
     const closeModal = document.getElementById("closeModal");
 
-    let isEditing = false;
+    const params = new URLSearchParams(window.location.search);
+    const customTitle = params.get("title");
+
+    if (customTitle && customTitle.trim() !== "") {
+      pageTitle.textContent = customTitle;
+      document.title = customTitle;
+    }
+
     let isLoading = false;
-
-    editTitleLink.addEventListener("click", function (event) {
-      event.preventDefault();
-
-      isEditing = !isEditing;
-      pageTitle.contentEditable = isEditing;
-
-      if (isEditing) {
-        pageTitle.focus();
-        editTitleLink.textContent = "Save title";
-
-        const range = document.createRange();
-        const selection = window.getSelection();
-
-        range.selectNodeContents(pageTitle);
-        range.collapse(false);
-
-        selection.removeAllRanges();
-        selection.addRange(range);
-      } else {
-        pageTitle.blur();
-        editTitleLink.textContent = "Edit title";
-      }
-    });
-
-    pageTitle.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        isEditing = false;
-        pageTitle.contentEditable = false;
-        pageTitle.blur();
-        editTitleLink.textContent = "Edit title";
-      }
-    });
 
     streamBox.addEventListener("click", function () {
       if (isLoading) return;
